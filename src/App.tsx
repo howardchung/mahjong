@@ -155,7 +155,7 @@ function App() {
             }}
           />
           <NativeSelect
-            label="Who discarded winning tile?"
+            label="Who discarded winning tile? (choose winner for self-draw)"
             data={playerOptions}
             rightSection={<div>Clear</div>}
             value={mods.discarder}
@@ -205,17 +205,6 @@ function App() {
           >
             Save
           </Button>
-          {/*
-          const modifiers = {
-    isSelfDraw: false, // everyone pays double (also +1 fan)
-    isNineTwelvePenalty: false, // discarder pays all losses
-    discarder: null,
-    winner: null,
-    fan: 0,
-    isTie: false,
-    isFakeWin: false,
-  };
-*/}
         </div>
         <Button>Reset</Button>
         <Button>Export</Button>
