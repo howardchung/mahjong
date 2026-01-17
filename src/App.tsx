@@ -92,7 +92,7 @@ function App() {
     }
 
     // Minimum of 1 (even if 0 fan)
-    deltas = deltas.map((d) => d || 1);
+    deltas = deltas.map((d) => d || -1);
 
     // Reset winner to 0
     deltas[Number(mods.winner)] = 0;
