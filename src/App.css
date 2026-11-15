@@ -4,3 +4,108 @@
   padding: 1rem;
   text-align: center;
 }
+
+* {
+  box-sizing: border-box;
+}
+
+.ui-input,
+.ui-select {
+  width: 100%;
+  min-width: 0;
+  padding: 6px 10px;
+  background-color: #2e2e2e;
+  border: 1px solid #424242;
+  border-radius: 4px;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+.ui-input:focus,
+.ui-select:focus {
+  border-color: #228be6;
+}
+
+.ui-field {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  gap: 4px;
+}
+
+.ui-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #c9c9c9;
+}
+
+.ui-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.ui-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #373a40;
+}
+
+.ui-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: #228be6;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ui-btn:hover {
+  background-color: #1c7ed6;
+  color: #ffffff;
+}
+
+.ui-btn-xs {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.ui-btn-red {
+  background-color: #e03131;
+}
+
+.ui-btn-red:hover {
+  background-color: #c92a2a;
+}
+
+.ui-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ui-slider {
+  flex: 1;
+  accent-color: #228be6;
+  cursor: pointer;
+}
+
+.ui-slider-value {
+  min-width: 28px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background-color: #228be6;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+}

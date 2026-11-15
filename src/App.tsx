@@ -1,15 +1,5 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import "./App.css";
-import {
-  Button,
-  MantineProvider,
-  NativeSelect,
-  Slider,
-  Table,
-  TextInput,
-  Text,
-} from "@mantine/core";
-import "@mantine/core/styles.css";
 
 const scoreTable = [0, 1, 2, 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256];
 const winds = ["East", "South", "West", "North"];
@@ -129,15 +119,16 @@ function App() {
     })),
   ];
   return (
-    <MantineProvider defaultColorScheme="dark">
+    <>
       <h2>Mahjong Score Tracker</h2>
       <div>Current Round: {getCurrentRoundName()}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex", gap: "4px" }}>
           {gameState.playerNames.map((_, i) => {
             return (
-              <TextInput
+              <input
                 key={i}
+                className="ui-input"
                 type="text"
                 value={gameState.playerNames[i]}
                 onChange={(e) => updatePlayerName(e.target.value, i)}
@@ -145,33 +136,33 @@ function App() {
             );
           })}
         </div>
-        <Table>
-          <Table.Thead>
-            <Table.Tr>
+        <table className="ui-table">
+          <thead>
+            <tr>
               {gameState.playerNames.map((name, i) => (
-                <Table.Td key={i}>{name}</Table.Td>
+                <td key={i}>{name}</td>
               ))}
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
+            </tr>
+          </thead>
+          <tbody>
             {gameState.deltas.map((delta, i) => (
-              <Table.Tr key={i}>
+              <tr key={i}>
                 {delta.map((r, j) => {
                   currentScores[j] += r;
                   return (
-                    <Table.Td
+                    <td
                       style={{ backgroundColor: r > 0 ? "green" : undefined }}
                       key={j}
                     >
                       {r}
-                    </Table.Td>
+                    </td>
                   );
                 })}
                 {i === gameState.deltas.length - 1 && (
-                  <Table.Td>
-                    <Button
-                      color="red"
-                      size="xs"
+                  <td>
+                    <button
+                      type="button"
+                      className="ui-btn ui-btn-red ui-btn-xs"
                       onClick={() => {
                         setAndSave({
                           ...gameState,
@@ -180,47 +171,77 @@ function App() {
                       }}
                     >
                       Delete
-                    </Button>
-                  </Table.Td>
+                    </button>
+                  </td>
                 )}
-              </Table.Tr>
+              </tr>
             ))}
-            <Table.Tr style={{ fontWeight: 700 }}>
+            <tr style={{ fontWeight: 700 }}>
               {currentScores.map((score, i) => (
-                <Table.Td key={i}>{score}</Table.Td>
+                <td key={i}>{score}</td>
               ))}
-              <Table.Td>Totals</Table.Td>
-            </Table.Tr>
-          </Table.Tbody>
-        </Table>
+              <td>Totals</td>
+            </tr>
+          </tbody>
+        </table>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          <NativeSelect
-            label="Who won?"
-            data={playerOptions}
-            // rightSection={<div>Clear</div>}
-            value={mods.winner}
-            onChange={(e) => {
-              setMods({ ...mods, winner: e.target.value });
-            }}
-          />
-          <NativeSelect
-            label="Who discarded winning tile? (if self-draw, winner)"
-            data={playerOptions}
-            // rightSection={<div>Clear</div>}
-            value={mods.discarder}
-            onChange={(e) => {
-              setMods({ ...mods, discarder: e.target.value });
-            }}
-          />
-          <NativeSelect
-            label="Player paying all losses (9 or 12 piece penalty)"
-            data={[{ label: "None", value: "" }, ...playerOptions]}
-            // rightSection={<div>Clear</div>}
-            value={mods.penalty}
-            onChange={(e) => {
-              setMods({ ...mods, penalty: e.target.value });
-            }}
-          />
+          <div className="ui-field">
+            <label className="ui-label" htmlFor="winner-select">
+              Who won?
+            </label>
+            <select
+              id="winner-select"
+              className="ui-select"
+              value={mods.winner}
+              onChange={(e) => {
+                setMods({ ...mods, winner: e.target.value });
+              }}
+            >
+              {playerOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="ui-field">
+            <label className="ui-label" htmlFor="discarder-select">
+              Who discarded winning tile? (if self-draw, winner)
+            </label>
+            <select
+              id="discarder-select"
+              className="ui-select"
+              value={mods.discarder}
+              onChange={(e) => {
+                setMods({ ...mods, discarder: e.target.value });
+              }}
+            >
+              {playerOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="ui-field">
+            <label className="ui-label" htmlFor="penalty-select">
+              Player paying all losses (9 or 12 piece penalty)
+            </label>
+            <select
+              id="penalty-select"
+              className="ui-select"
+              value={mods.penalty}
+              onChange={(e) => {
+                setMods({ ...mods, penalty: e.target.value });
+              }}
+            >
+              {[{ label: "None", value: "" }, ...playerOptions].map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
           {/* <Checkbox
             checked={mods.fakeWin}
             label={`Fake win ("winner" pays other players)`}
@@ -228,25 +249,32 @@ function App() {
               setMods({ ...mods, fakeWin: e.target.checked });
             }}
           /> */}
-          <Text>How many points (fan)?</Text>
-          <Slider
-            value={mods.points}
-            max={13}
-            labelAlwaysOn
-            onChange={(val) => {
-              setMods({ ...mods, points: val });
-            }}
-          />
-          <Table>
-            <Table.Tbody>
-              <Table.Tr>
+          <span className="ui-label">How many points (fan)?</span>
+          <div className="ui-slider-wrap">
+            <input
+              type="range"
+              className="ui-slider"
+              min={0}
+              max={13}
+              value={mods.points}
+              onChange={(e) => {
+                setMods({ ...mods, points: Number(e.target.value) });
+              }}
+            />
+            <span className="ui-slider-value">{mods.points}</span>
+          </div>
+          <table className="ui-table">
+            <tbody>
+              <tr>
                 {computeScoreDeltas(mods).map((delta, i) => (
-                  <Table.Td key={i}>{delta}</Table.Td>
+                  <td key={i}>{delta}</td>
                 ))}
-              </Table.Tr>
-            </Table.Tbody>
-          </Table>
-          <Button
+              </tr>
+            </tbody>
+          </table>
+          <button
+            type="button"
+            className="ui-btn"
             onClick={() => {
               const deltas = computeScoreDeltas(mods);
               setAndSave({
@@ -256,18 +284,18 @@ function App() {
             }}
           >
             Add Game
-          </Button>
+          </button>
         </div>
         {/* <Button onClick={() => setGameState({ ...gameState, deltas: [] })}>
           Reset
         </Button> */}
-        <Button
-          component="a"
+        <a
+          className="ui-btn"
           href={"data:text/csv;charset=utf-8," + generateCsv()}
           download={"mahjongScores.csv"}
         >
           Export
-        </Button>
+        </a>
         <a
           target="_blank"
           href="https://en.wikipedia.org/wiki/Hong_Kong_mahjong_scoring_rules"
@@ -275,7 +303,7 @@ function App() {
           Scoring Reference
         </a>
       </div>
-    </MantineProvider>
+    </>
   );
 }
 
