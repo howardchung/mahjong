@@ -120,8 +120,8 @@ function App() {
   ];
   return (
     <>
-      <h2>Mahjong Score Tracker</h2>
-      <div>Current Round: {getCurrentRoundName()}</div>
+      <h2 className="mj-title">Mahjong Score Tracker</h2>
+      <div className="mj-round">Current Round: {getCurrentRoundName()}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
         <div style={{ display: "flex", gap: "4px" }}>
           {gameState.playerNames.map((_, i) => {
