@@ -1,17 +1,75 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* Typography */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-cjk: "Noto Serif SC", "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", serif;
+
+  /* Surfaces */
+  --bg-base: #071912;
+  --bg-felt-top: #0f3626;
+  --bg-felt-vignette: #04100b;
+  --surface-card: rgba(12, 38, 28, 0.88);
+  --surface-elevated: #123c2c;
+  --surface-input: #0a251b;
+  --surface-hover: #174936;
+  --surface-tile: #f3ede0;
+
+  /* Borders */
+  --border-subtle: rgba(180, 215, 195, 0.12);
+  --border-card: rgba(180, 215, 195, 0.18);
+  --border-input: rgba(180, 215, 195, 0.22);
+  --border-gold: rgba(229, 184, 92, 0.45);
+
+  /* Text */
+  --text-primary: #f4efe6;
+  --text-secondary: #b7cbbd;
+  --text-muted: #7b9987;
+  --text-tile: #1a241f;
+
+  /* Accents & Semantics */
+  --gold: #e5b85c;
+  --gold-bright: #f5d07d;
+  --gold-soft: rgba(229, 184, 92, 0.14);
+
+  --jade: #1f7a53;
+  --jade-hover: #279365;
+  --jade-glow: rgba(39, 147, 101, 0.25);
+
+  --win-text: #5ee0a0;
+  --win-bg: rgba(45, 180, 115, 0.16);
+  --win-border: rgba(94, 224, 160, 0.28);
+
+  --loss-text: #f08a82;
+  --danger-bg: #a83232;
+  --danger-hover: #c43c3c;
+
+  /* Shadows */
+  --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-tile: 0 2px 0 #cfc5b0, 0 4px 8px rgba(0, 0, 0, 0.35);
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  font-family: var(--font-sans);
   line-height: 1.5;
   font-weight: 400;
   color-scheme: dark;
-  color: #f4efe6;
-  background-color: #081f16;
+  color: var(--text-primary);
+  background-color: var(--bg-base);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -19,24 +77,36 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  color: var(--text-primary);
   background:
     radial-gradient(
-      ellipse 80% 55% at 50% 20%,
-      rgba(26, 94, 67, 0.45),
+      ellipse 90% 50% at 50% 0%,
+      rgba(26, 98, 68, 0.42),
       transparent 70%
     ),
-    #081f16;
+    radial-gradient(
+      circle at 50% 100%,
+      var(--bg-felt-vignette) 0%,
+      transparent 60%
+    ),
+    var(--bg-base);
   background-attachment: fixed;
-  color: #f4efe6;
 }
 
 a {
-  font-weight: 500;
-  color: #e6b84d;
+  color: var(--gold);
   text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s ease;
 }
 
 a:hover {
-  color: #f5d076;
+  color: var(--gold-bright);
   text-decoration: underline;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
 }

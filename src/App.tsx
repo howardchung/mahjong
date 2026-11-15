@@ -3,6 +3,7 @@ import "./App.css";
 
 const scoreTable = [0, 1, 2, 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256];
 const winds = ["East", "South", "West", "North"];
+const windChars = ["東", "南", "西", "北"];
 // East: 東 (dōng)
 // South: 南 (nán)
 // West: 西 (xī)
@@ -112,86 +113,153 @@ function App() {
   };
 
   const currentScores = [0, 0, 0, 0]; // sum of deltas
+  const dealerIndex = gameState.deltas.length % gameState.playerNames.length;
+  const previewDeltas = computeScoreDeltas(mods);
+  const isSelfDraw = mods.winner === mods.discarder;
   const playerOptions = [
     ...gameState.playerNames.map((name, i) => ({
       label: name,
       value: String(i),
     })),
   ];
+
+  const getScoreClass = (val: number) => {
+    if (val > 0) return "mj-score-win";
+    if (val < 0) return "mj-score-loss";
+    return "mj-score-zero";
+  };
+
+  const formatDelta = (val: number) => (val > 0 ? `+${val}` : String(val));
+
   return (
-    <>
-      <h2 className="mj-title">Mahjong Score Tracker</h2>
-      <div className="mj-round">Current Round: {getCurrentRoundName()}</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        <div style={{ display: "flex", gap: "4px" }}>
+    <main className="mj-app">
+      <header className="mj-header">
+        <h1 className="mj-title">
+          <span className="mj-title-tile" aria-hidden="true">
+            中
+          </span>
+          Mahjong Score Tracker
+        </h1>
+        <div className="mj-round-badge">
+          <span className="mj-round-dot" aria-hidden="true" />
+          Current Round: {getCurrentRoundName()}
+        </div>
+      </header>
+
+      <section className="mj-card" aria-label="Players and Scoreboard">
+        <div className="mj-card-header">
+          <h2 className="mj-card-title">Table &amp; Scores</h2>
+          <span className="mj-card-subtitle">
+            {gameState.deltas.length}{" "}
+            {gameState.deltas.length === 1 ? "hand" : "hands"} played
+          </span>
+        </div>
+
+        <div className="mj-players-grid">
           {gameState.playerNames.map((_, i) => {
+            const isDealer = i === dealerIndex;
             return (
-              <input
+              <div
                 key={i}
-                className="ui-input"
-                type="text"
-                value={gameState.playerNames[i]}
-                onChange={(e) => updatePlayerName(e.target.value, i)}
-              />
+                className={`mj-seat ${isDealer ? "mj-seat-dealer" : ""}`}
+              >
+                <div className="mj-seat-meta">
+                  <span className="mj-wind-tile" title={winds[i]}>
+                    {windChars[i]}
+                  </span>
+                  {isDealer && <span className="mj-dealer-tag">Dealer</span>}
+                </div>
+                <input
+                  className="mj-input"
+                  type="text"
+                  aria-label={`${winds[i]} player name`}
+                  value={gameState.playerNames[i]}
+                  onChange={(e) => updatePlayerName(e.target.value, i)}
+                />
+              </div>
             );
           })}
         </div>
-        <table className="ui-table">
-          <thead>
-            <tr>
-              {gameState.playerNames.map((name, i) => (
-                <td key={i}>{name}</td>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {gameState.deltas.map((delta, i) => (
-              <tr key={i}>
-                {delta.map((r, j) => {
-                  currentScores[j] += r;
-                  return (
-                    <td
-                      style={{ backgroundColor: r > 0 ? "green" : undefined }}
-                      key={j}
-                    >
-                      {r}
-                    </td>
-                  );
-                })}
-                {i === gameState.deltas.length - 1 && (
-                  <td>
-                    <button
-                      type="button"
-                      className="ui-btn ui-btn-red ui-btn-xs"
-                      onClick={() => {
-                        setAndSave({
-                          ...gameState,
-                          deltas: gameState.deltas.slice(0, -1),
-                        });
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                )}
+
+        <div className="mj-table-wrap">
+          <table className="mj-table">
+            <thead>
+              <tr>
+                <th className="mj-col-round">#</th>
+                {gameState.playerNames.map((name, i) => (
+                  <th key={i}>{name}</th>
+                ))}
+                <th className="mj-col-action" />
               </tr>
-            ))}
-            <tr style={{ fontWeight: 700 }}>
-              {currentScores.map((score, i) => (
-                <td key={i}>{score}</td>
-              ))}
-              <td>Totals</td>
-            </tr>
-          </tbody>
-        </table>
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          <div className="ui-field">
-            <label className="ui-label" htmlFor="winner-select">
+            </thead>
+            <tbody>
+              {gameState.deltas.length === 0 ? (
+                <tr className="mj-row-empty">
+                  <td colSpan={gameState.playerNames.length + 2}>
+                    No hands recorded yet. Log the first hand below.
+                  </td>
+                </tr>
+              ) : (
+                gameState.deltas.map((delta, i) => (
+                  <tr key={i}>
+                    <td className="mj-col-round">{i + 1}</td>
+                    {delta.map((r, j) => {
+                      currentScores[j] += r;
+                      return (
+                        <td className={getScoreClass(r)} key={j}>
+                          {formatDelta(r)}
+                        </td>
+                      );
+                    })}
+                    <td className="mj-col-action">
+                      {i === gameState.deltas.length - 1 && (
+                        <button
+                          type="button"
+                          className="mj-btn mj-btn-danger-xs"
+                          onClick={() => {
+                            setAndSave({
+                              ...gameState,
+                              deltas: gameState.deltas.slice(0, -1),
+                            });
+                          }}
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+              <tr className="mj-row-totals">
+                <td className="mj-totals-label">Total</td>
+                {currentScores.map((score, i) => (
+                  <td className={getScoreClass(score)} key={i}>
+                    {formatDelta(score)}
+                  </td>
+                ))}
+                <td />
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section className="mj-card" aria-label="Record Hand">
+        <div className="mj-card-header">
+          <h2 className="mj-card-title">Record Hand</h2>
+          {isSelfDraw && (
+            <span className="mj-hint">Self-draw (all pay double)</span>
+          )}
+        </div>
+
+        <div className="mj-form-grid">
+          <div className="mj-field">
+            <label className="mj-label" htmlFor="winner-select">
               Who won?
             </label>
             <select
               id="winner-select"
-              className="ui-select"
+              className="mj-select"
               value={mods.winner}
               onChange={(e) => {
                 setMods({ ...mods, winner: e.target.value });
@@ -204,13 +272,14 @@ function App() {
               ))}
             </select>
           </div>
-          <div className="ui-field">
-            <label className="ui-label" htmlFor="discarder-select">
-              Who discarded winning tile? (if self-draw, winner)
+
+          <div className="mj-field">
+            <label className="mj-label" htmlFor="discarder-select">
+              Who discarded? (if self-draw, winner)
             </label>
             <select
               id="discarder-select"
-              className="ui-select"
+              className="mj-select"
               value={mods.discarder}
               onChange={(e) => {
                 setMods({ ...mods, discarder: e.target.value });
@@ -223,13 +292,14 @@ function App() {
               ))}
             </select>
           </div>
-          <div className="ui-field">
-            <label className="ui-label" htmlFor="penalty-select">
+
+          <div className="mj-field mj-field-full">
+            <label className="mj-label" htmlFor="penalty-select">
               Player paying all losses (9 or 12 piece penalty)
             </label>
             <select
               id="penalty-select"
-              className="ui-select"
+              className="mj-select"
               value={mods.penalty}
               onChange={(e) => {
                 setMods({ ...mods, penalty: e.target.value });
@@ -242,6 +312,7 @@ function App() {
               ))}
             </select>
           </div>
+
           {/* <Checkbox
             checked={mods.fakeWin}
             label={`Fake win ("winner" pays other players)`}
@@ -249,61 +320,106 @@ function App() {
               setMods({ ...mods, fakeWin: e.target.checked });
             }}
           /> */}
-          <span className="ui-label">How many points (fan)?</span>
-          <div className="ui-slider-wrap">
-            <input
-              type="range"
-              className="ui-slider"
-              min={0}
-              max={13}
-              value={mods.points}
-              onChange={(e) => {
-                setMods({ ...mods, points: Number(e.target.value) });
-              }}
-            />
-            <span className="ui-slider-value">{mods.points}</span>
+
+          <div className="mj-field mj-field-full">
+            <div className="mj-slider-header">
+              <label className="mj-label" htmlFor="points-slider">
+                How many points (fan)?
+              </label>
+              <span className="mj-fan-badge">{mods.points} fan</span>
+            </div>
+            <div className="mj-slider-wrap">
+              <button
+                type="button"
+                className="mj-step-btn"
+                aria-label="Decrease fan"
+                disabled={mods.points <= 0}
+                onClick={() =>
+                  setMods({ ...mods, points: Math.max(0, mods.points - 1) })
+                }
+              >
+                −
+              </button>
+              <input
+                id="points-slider"
+                type="range"
+                className="mj-slider"
+                min={0}
+                max={13}
+                value={mods.points}
+                onChange={(e) => {
+                  setMods({ ...mods, points: Number(e.target.value) });
+                }}
+              />
+              <button
+                type="button"
+                className="mj-step-btn"
+                aria-label="Increase fan"
+                disabled={mods.points >= 13}
+                onClick={() =>
+                  setMods({ ...mods, points: Math.min(13, mods.points + 1) })
+                }
+              >
+                +
+              </button>
+            </div>
           </div>
-          <table className="ui-table">
-            <tbody>
-              <tr>
-                {computeScoreDeltas(mods).map((delta, i) => (
-                  <td key={i}>{delta}</td>
-                ))}
-              </tr>
-            </tbody>
-          </table>
-          <button
-            type="button"
-            className="ui-btn"
-            onClick={() => {
-              const deltas = computeScoreDeltas(mods);
-              setAndSave({
-                ...gameState,
-                deltas: [...gameState.deltas, deltas],
-              });
-            }}
-          >
-            Add Game
-          </button>
         </div>
+
+        <div className="mj-preview-grid" aria-label="Hand score preview">
+          {previewDeltas.map((delta, i) => (
+            <div
+              key={i}
+              className={`mj-preview-item ${
+                delta > 0 ? "mj-preview-item-win" : ""
+              }`}
+            >
+              <span className="mj-preview-name">
+                {gameState.playerNames[i]}
+              </span>
+              <span className={`mj-preview-delta ${getScoreClass(delta)}`}>
+                {formatDelta(delta)}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          className="mj-btn mj-btn-full"
+          onClick={() => {
+            const deltas = computeScoreDeltas(mods);
+            setAndSave({
+              ...gameState,
+              deltas: [...gameState.deltas, deltas],
+            });
+          }}
+        >
+          Add Game
+        </button>
+      </section>
+
+      <footer className="mj-footer">
         {/* <Button onClick={() => setGameState({ ...gameState, deltas: [] })}>
           Reset
         </Button> */}
         <a
-          className="ui-btn"
+          className="mj-btn mj-btn-secondary"
           href={"data:text/csv;charset=utf-8," + generateCsv()}
           download={"mahjongScores.csv"}
         >
-          Export
+          Export CSV
         </a>
         <a
+          className="mj-ref-link"
           target="_blank"
+          rel="noreferrer"
           href="https://en.wikipedia.org/wiki/Hong_Kong_mahjong_scoring_rules"
         >
-          Scoring Reference
+          Scoring Reference ↗
         </a>
-      </div>
-    </>
+      </footer>
+    </main>
   );
 }
 
