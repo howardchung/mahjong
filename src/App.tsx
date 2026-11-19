@@ -1,5 +1,7 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import "./App.css";
+import { HandScanner } from "./components/HandScanner";
+import { WindIndex } from "./mahjong/tiles";
 
 const scoreTable = [0, 1, 2, 4, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256];
 const winds = ["East", "South", "West", "North"];
@@ -114,6 +116,11 @@ function App() {
 
   const currentScores = [0, 0, 0, 0]; // sum of deltas
   const dealerIndex = gameState.deltas.length % gameState.playerNames.length;
+  const roundWindIndex = (Math.floor(
+    gameState.deltas.length / gameState.playerNames.length
+  ) % winds.length) as WindIndex;
+  const seatWindIndex = (Number(mods.winner) % winds.length) as WindIndex;
+  const recordSectionRef = useRef<HTMLElement | null>(null);
   const previewDeltas = computeScoreDeltas(mods);
   const isSelfDraw = mods.winner === mods.discarder;
   const playerOptions = [
@@ -244,7 +251,11 @@ function App() {
         </div>
       </section>
 
-      <section className="mj-card" aria-label="Record Hand">
+      <section
+        ref={recordSectionRef}
+        className="mj-card"
+        aria-label="Record Hand"
+      >
         <div className="mj-card-header">
           <h2 className="mj-card-title">Record Hand</h2>
           {isSelfDraw && (
@@ -398,6 +409,19 @@ function App() {
           Add Game
         </button>
       </section>
+
+      <HandScanner
+        defaultRoundWind={roundWindIndex}
+        defaultSeatWind={seatWindIndex}
+        onApplyScore={(fan, selfDraw) => {
+          setMods((prev) => ({
+            ...prev,
+            points: Math.max(0, Math.min(13, fan)),
+            discarder: selfDraw ? prev.winner : prev.discarder,
+          }));
+          recordSectionRef.current?.scrollIntoView({ behavior: "smooth" });
+        }}
+      />
 
       <footer className="mj-footer">
         {/* <Button onClick={() => setGameState({ ...gameState, deltas: [] })}>
